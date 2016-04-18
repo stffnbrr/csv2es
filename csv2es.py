@@ -41,6 +41,20 @@ def echo(message, quiet):
         click.echo(message)
 
 
+def clean_row(row):
+    """
+    Removes entries with empty strings from row in order to represent missing values in es correctly
+
+    :param row Row of the csv data
+    :return row without entires with empty string
+    """
+    new = dict()
+    for key, value in row.iteritems():
+        if value != "":
+            new[key] = value
+    return new
+
+
 def documents_from_file(es, filename, delimiter, quiet):
     """
     Return a generator for pulling rows from a given delimited file.
@@ -65,7 +79,7 @@ def documents_from_file(es, filename, delimiter, quiet):
                 count += 1
                 if count % 10000 == 0:
                     echo('Sent documents: ' + str(count), quiet)
-                yield es.index_op(row)
+                yield es.index_op(clean_row(row))
 
     return all_docs
 
